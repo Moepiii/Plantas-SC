@@ -4,9 +4,9 @@ Misiones
 
 * Que Asignes Cual Regaste Y Te Diga Cuando La Riegas De Nuevo(Esto si se puede si es muy loco no)
 
-* Que asignes una altura a una planta, luego que puedas poner otra y te diga cuanto crecio(Esto si se puede si es muy loco no)
+* Que asignes una altura a una planta, luego que puedas poner otra y te diga cuanto crecio(en progreso)
 
-* Que puedas Eliminar Plantas
+* Que puedas Eliminar Plantas(listo)
 
 * Probarla Para Que No Explote Con Mas De 1 Usuario
 
