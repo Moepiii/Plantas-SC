@@ -1,6 +1,6 @@
 # Plantas-SC
 
-Bot de Telegram para registrar, medir y gestionar el crecimiento y riego de las plantas de nuestro vivero.
+Bot de Telegram para registrar, medir y gestionar el crecimiento y riego de las plantas de nuestro vivero, así como el seguimiento de horas de servicio comunitario.
 
 ---
 
@@ -15,6 +15,7 @@ Plantas-SC es un bot de Telegram que permite a los usuarios:
 - Configurar y registrar la frecuencia de riego de cada planta.
 - Consultar y modificar la frecuencia y la fecha del último riego.
 - Recibir recordatorios automáticos cuando toca regar una planta.
+- Registrar, consultar y eliminar horas de servicio comunitario, con resumen por fecha y notificación al completar las 120 horas.
 
 ---
 
@@ -30,23 +31,36 @@ Plantas-SC/
 ├── data/                    # Archivos JSON persistentes de datos
 │   ├── plantas.json
 │   ├── medidas.json
-│   └── riego.json
+│   ├── riego.json
+│   └── horas.json
 └── src/
     ├── __init__.py
     ├── bot.py               # Configuración y arranque del bot
     ├── handlers/            # Handlers de comandos y conversaciones
     │   ├── __init__.py
-    │   ├── start.py             # /start
-    │   ├── register.py          # /registrar
-    │   ├── view_plants.py       # /verplantas
-    │   ├── delete.py            # /eliminar
-    │   ├── measure.py           # /medir (ConversationHandler)
-    │   ├── high.py              # /estatura (ConversationHandler)
-    │   ├── water.py             # /regar
-    │   ├── consult_watering.py  # /consultarRiego
-    │   ├── change_watering.py   # /cambiarRiego
-    │   ├── change_frequency.py  # /cambiarFrecuencia
-    │   └── reminder.py          # Job de recordatorio de riego
+    │   ├── start.py
+    │   ├── help.py              # Comando /help con ayuda por secciones
+    │   ├── delete_my_data.py    # /borrarMisDatos
+    │   ├── reminder.py          # Job de recordatorio de riego
+    │   ├── plants/
+    │   │   ├── __init__.py
+    │   │   ├── register.py      # /registrar
+    │   │   ├── view_plants.py   # /verplantas
+    │   │   ├── delete.py        # /eliminar
+    │   │   ├── measure.py       # /medir (ConversationHandler)
+    │   │   └── high.py          # /estatura (ConversationHandler)
+    │   ├── watering/
+    │   │   ├── __init__.py
+    │   │   ├── water.py             # /regar
+    │   │   ├── consult_watering.py  # /consultarRiego
+    │   │   ├── change_watering.py   # /cambiarRiego
+    │   │   └── change_frequency.py  # /cambiarFrecuencia
+    │   └── hours/
+    │       ├── __init__.py
+    │       ├── register_hours_today.py      # /registrarHorasDeHoy
+    │       ├── register_hours_with_date.py  # /registrarHorasConFecha
+    │       ├── hours_summary.py             # /horasCumplidas
+    │       └── delete_hours.py              # /eliminarHoras
     └── utils/
         ├── __init__.py
         └── storage.py       # Diccionarios globales de almacenamiento y persistencia
@@ -101,7 +115,18 @@ python main.py
 
 ## Uso
 
-En Telegram, inicia una conversación con tu bot y usa los siguientes comandos:
+En Telegram, inicia una conversación con tu bot y usa los siguientes comandos generales:
+
+- `/start` — Muestra las acciones generales y secciones disponibles.
+- `/help` — Muestra la ayuda completa con todos los comandos.
+- `/help <número>` — Muestra la ayuda específica de una sección:
+  - `/help 1` — Consulta tus plantitas
+  - `/help 2` — Crecimiento de plantas
+  - `/help 3` — Riego de plantas
+  - `/help 4` — Seguimiento de horas de Servicio Comunitario
+
+Cada sección contiene los comandos detallados para esa funcionalidad, los cuales son los siguientes:
+
 
 ### 🍃 Consulta tus plantitas
 - `/verplantas` — Ver tus plantas registradas.
@@ -118,9 +143,17 @@ En Telegram, inicia una conversación con tu bot y usa los siguientes comandos:
 - `/cambiarRiego <nombre> <YYYY-MM-DD>` — Cambiar la fecha del último riego.
 - `/cambiarFrecuencia <nombre> <días>` — Cambiar la frecuencia de riego.
 
+### 🕒 Seguimiento de horas de Servicio Comunitario
+- `/registrarHorasDeHoy <horas>` — Registrar horas para hoy.
+- `/registrarHorasConFecha <horas> <YYYY-MM-DD>` — Registrar horas en otra fecha.
+- `/horasCumplidas` — Ver resumen de horas cumplidas.
+- `/eliminarHoras <horas> <YYYY-MM-DD>` — Eliminar horas de una fecha.
+
 ### ❌ Otros
 - `/cancelar` — Cancela cualquier acción en curso.
-- `/start` — Muestra la bienvenida y los comandos disponibles.
+- `/start` — Muestra las acciones generales y secciones disponibles.
+- `/help` — Muestra la ayuda completa con todos los comandos.
+- `/borrarMisDatos` — Elimina todos tus datos del bot.
 
 ---
 

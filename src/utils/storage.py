@@ -7,15 +7,17 @@ os.makedirs(DATA_DIR, exist_ok=True)
 PLANTAS_FILE = os.path.join(DATA_DIR, "plantas.json")
 MEDIDAS_FILE = os.path.join(DATA_DIR, "medidas.json")
 RIEGO_FILE = os.path.join(DATA_DIR, "riego.json")
+HORAS_FILE = os.path.join(DATA_DIR, "horas.json")
 
 # Diccionarios globales para almacenar datos por usuario
 
 plantas_por_usuario = {}
 medidas_por_usuario = {}
 riego_por_usuario = {}  # {user_id: {planta: {"frecuencia": int, "ultimo_riego": "YYYY-MM-DD"}}}
+horas_por_usuario = {}  # {user_id: [{"fecha": "YYYY-MM-DD", "horas": float}]}
 
 def cargar_datos():
-    global plantas_por_usuario, medidas_por_usuario, riego_por_usuario
+    global plantas_por_usuario, medidas_por_usuario, riego_por_usuario, horas_por_usuario
     if os.path.exists(PLANTAS_FILE):
         with open(PLANTAS_FILE, "r") as f:
             data = json.load(f)
@@ -31,6 +33,11 @@ def cargar_datos():
             data = json.load(f)
             riego_por_usuario.clear()
             riego_por_usuario.update({int(k): v for k, v in data.items()})
+    if os.path.exists(HORAS_FILE):
+        with open(HORAS_FILE, "r") as f:
+            data = json.load(f)
+            horas_por_usuario.clear()
+            horas_por_usuario.update({int(k): v for k, v in data.items()})
 
 def guardar_datos():
     with open(PLANTAS_FILE, "w") as f:
@@ -39,3 +46,5 @@ def guardar_datos():
         json.dump(medidas_por_usuario, f)
     with open(RIEGO_FILE, "w") as f:
         json.dump(riego_por_usuario, f)
+    with open(HORAS_FILE, "w") as f:
+        json.dump(horas_por_usuario, f)
