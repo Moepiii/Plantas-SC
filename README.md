@@ -137,7 +137,7 @@ Cada sección contiene los comandos detallados para esa funcionalidad, los cuale
 ### 🌱 Crecimiento de plantas
 - `/medir` — Inicia el flujo para registrar una medida de una planta.
 - `/estatura` — Consulta la última medida registrada de una planta.
-- `/elimina_medida` — Consulta la última medida registrada de una planta.
+- `/elimina_medida` — Elimina la medida registrada de una planta.
 
 ### 💧 Riego de plantas
 - `/regar <nombre> <días>` — Configurar frecuencia y registrar riego de una planta.
