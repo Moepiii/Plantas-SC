@@ -1,6 +1,11 @@
-import logging
-from telegram import Update
 from telegram.ext import ApplicationBuilder
+from src.config import Config
+from src.utils.logger import setup_logger
+from src.utils.storage import cargar_datos
+
+# Importar todos los handlers con decoradores mejorados
+from src.handlers.start import start_handler
+from src.handlers.help import help_handler
 from src.handlers.start import start_handler
 from src.handlers.help import help_handler
 from src.handlers.delete_my_data import borrar_mis_datos_handler
@@ -22,7 +27,7 @@ from src.handlers.watering.change_watering import cambiar_riego_handler
 from src.handlers.watering.change_frequency import cambiar_frecuencia_handler
 
 # Horas
-from src.handlers.hours.register_hours_today import registrar_horas_de_hoy_handler
+from src.handlers.hours.register_hours_today import register_hours_today_handler
 from src.handlers.hours.register_hours_with_date import registrar_horas_con_fecha_handler
 from src.handlers.hours.hours_summary import horas_cumplidas_handler
 from src.handlers.hours.delete_hours import eliminar_horas_handler
@@ -30,33 +35,54 @@ from src.handlers.hours.delete_hours import eliminar_horas_handler
 from src.handlers.reminder import revisar_riegos
 from src.utils.storage import cargar_datos
 
-# Configuración de logging
-logging.basicConfig(level=logging.INFO)
-
 def run_bot():
-    cargar_datos()
-    app = ApplicationBuilder().token("8059185234:AAHEY0JEB_liE7_h2soULyowz_xArACKmJE").build()
-    app.add_handler(start_handler)
-    app.add_handler(help_handler)
-    app.add_handler(borrar_mis_datos_handler)
-    # Plantas
-    app.add_handler(registrar_handler)
-    app.add_handler(verplantas_handler)
-    app.add_handler(eliminar_handler)
-    # Crecimiento
-    app.add_handler(medir_handler)
-    app.add_handler(estatura_handler)
-    app.add_handler(eliminar_medida_handler)
-    # Riego
-    app.add_handler(regar_handler)
-    app.add_handler(consultar_riego_handler)
-    app.add_handler(cambiar_riego_handler)
-    app.add_handler(cambiar_frecuencia_handler)
-    # Horas
-    app.add_handler(registrar_horas_de_hoy_handler)
-    app.add_handler(registrar_horas_con_fecha_handler)
-    app.add_handler(horas_cumplidas_handler)
-    app.add_handler(eliminar_horas_handler)
-    # Recordatorio de riego
-    app.job_queue.run_repeating(revisar_riegos, interval=60, first=10) # Cada minuto
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+    """Función principal mejorada para ejecutar el bot"""
+    
+    # Configurar logging
+    logger = setup_logger()
+    
+    try:
+        # Validar configuración
+        Config.validate()
+        logger.info("Configuración validada correctamente")
+        
+        # Cargar datos persistentes
+        cargar_datos()
+        logger.info("Datos cargados desde archivos JSON")
+        
+        # Crear aplicación del bot
+        app = ApplicationBuilder().token(Config.BOT_TOKEN).build()
+        
+        # Registrar todos los handlers
+        handlers = [
+            start_handler, help_handler, borrar_mis_datos_handler,
+            # Plantas
+            registrar_handler, verplantas_handler, eliminar_handler,
+            # Crecimiento
+            medir_handler, estatura_handler, eliminar_medida_handler,
+            # Riego
+            regar_handler, consultar_riego_handler, cambiar_riego_handler,
+            cambiar_frecuencia_handler,
+            # Horas
+            register_hours_today_handler, registrar_horas_con_fecha_handler,
+            horas_cumplidas_handler, eliminar_horas_handler
+        ]
+        
+        for handler in handlers:
+            app.add_handler(handler)
+        
+        logger.info(f"Registrados {len(handlers)} handlers")
+        
+        logger.info("Bot iniciado correctamente")
+        print("🤖 Bot Plantas-SC está funcionando...")
+        print("Presiona Ctrl+C para detener")
+        
+        # Ejecutar bot
+        app.run_polling(allowed_updates=["message"])
+        
+    except Exception as e:
+        logger.error(f"Error crítico al iniciar el bot: {str(e)}")
+        raise
+
+if __name__ == "__main__":
+    run_bot()
