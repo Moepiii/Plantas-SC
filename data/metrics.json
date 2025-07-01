@@ -1,0 +1,22 @@
+{
+  "commands_usage": {
+    "registrar": 3,
+    "eliminar": 2,
+    "regar": 1,
+    "consultarRiego": 1,
+    "cambiarFrecuencia": 1
+  },
+  "daily_active_users": {
+    "2025-07-01": [
+      12345,
+      863181953,
+      99999
+    ]
+  },
+  "errors": [],
+  "total_users": [
+    12345,
+    863181953,
+    99999
+  ]
+}

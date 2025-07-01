@@ -28,14 +28,17 @@ Plantas-SC/
 ├── requirements.txt         # Dependencias del proyecto
 ├── .gitignore               # Archivos y carpetas ignorados por git
 ├── README.md                # Este archivo
+├── Objetivos.md             # Funcionalidades esperadas del bot
 ├── data/                    # Archivos JSON persistentes de datos
 │   ├── plantas.json
 │   ├── medidas.json
 │   ├── riego.json
+│   ├── metrics.json
 │   └── horas.json
 └── src/
     ├── __init__.py
-    ├── bot.py               # Configuración y arranque del bot
+    ├── bot.py               # Arranque del bot
+    ├── config.py            # Configuración del bot
     ├── handlers/            # Handlers de comandos y conversaciones
     │   ├── __init__.py
     │   ├── start.py
@@ -62,9 +65,19 @@ Plantas-SC/
     │       ├── register_hours_with_date.py  # /registrarHorasConFecha
     │       ├── hours_summary.py             # /horasCumplidas
     │       └── delete_hours.py              # /eliminarHoras
-    └── utils/
-        ├── __init__.py
-        └── storage.py       # Diccionarios globales de almacenamiento y persistencia
+    ├── utils/
+    │    ├── __init__.py
+    │    ├── storage.py       # Diccionarios globales de almacenamiento y persistencia
+    │    ├── decorators.py    # Decoradores para comandos y conversaciones
+    │    ├── logger.py        # Configuración de logging
+    │    ├── metrics.py       # Métricas de rendimiento
+    │    └── validators.py    # Validaciones y filtros
+    │
+    └── tests/
+        ├── conversation_simulator.py   # Simulador de conversaciones
+        ├── test_validators.py          # Pruebas unitarias
+        └── user_acceptance_tests.py    # Pruebas de aceptación de usuario
+
 ```
 
 ---
@@ -97,6 +110,8 @@ Plantas-SC/
    pip install -r requirements.txt
    ```
 
+4. **Configurar el archivo .env con el token del bot:**
+
 5. **Ejecuta el bot:**
    ```bash
    python main.py
@@ -106,7 +121,7 @@ Plantas-SC/
 
 ## Ejecución (con entorno virtual ya creado y activado)
 
-Si ya tienes el entorno virtual creado y activado, simplemente ejecuta:
+Si ya tienes el entorno virtual creado, activado y con el archivo .env configurado, simplemente ejecuta:
 
 ```bash
 python main.py
