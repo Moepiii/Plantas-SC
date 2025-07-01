@@ -1,10 +1,9 @@
 {
   "commands_usage": {
-    "registrar": 3,
+    "registrar": 2,
     "eliminar": 2,
     "regar": 1,
-    "consultarRiego": 1,
-    "cambiarFrecuencia": 1
+    "consultarRiego": 1
   },
   "daily_active_users": {
     "2025-07-01": [

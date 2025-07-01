@@ -1,8 +1,8 @@
 {
-  "99999": {
+  "12345": {
     "Cactus": {
-      "frecuencia": 7,
-      "ultimo_riego": "2024-01-15"
+      "frecuencia": 3,
+      "ultimo_riego": "2025-07-01"
     }
   }
 }
