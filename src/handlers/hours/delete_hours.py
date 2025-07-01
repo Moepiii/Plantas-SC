@@ -1,22 +1,29 @@
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes
 from datetime import datetime
-from src.utils.storage import horas_por_usuario, guardar_datos
+from src.utils.decorators import handle_errors
+from src.utils.validators import CommandValidator, ValidationError
+from src.utils.storage import horas_por_usuario, guardar_datos, TOTAL_HORAS
 
-TOTAL_HORAS = 120
-
+@handle_errors
 async def eliminar_horas(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     if len(context.args) < 2:
         await update.message.reply_text("❗ Usa: /eliminarHoras <horas> <YYYY-MM-DD>")
         return
+    
     try:
+        
+        # Validar horas
+        horas = CommandValidator.delete_hours(context.args[0])
+        
+        # Valida que el formato de fecha ingresado sea correcto
+        fecha = CommandValidator.delete_date(context.args[1])
+        
         horas = float(context.args[0])
-        if horas <= 0:
-            raise ValueError
         fecha = datetime.strptime(context.args[1], "%Y-%m-%d").date().isoformat()
-    except ValueError:
-        await update.message.reply_text("❗ Ingresa una cantidad válida de horas y una fecha válida (YYYY-MM-DD).")
+    except ValidationError as e:
+        await update.message.reply_text(f"❗ {str(e)}")
         return
 
     registros = horas_por_usuario.get(user_id, [])

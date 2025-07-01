@@ -1,8 +1,6 @@
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes
-from src.utils.storage import horas_por_usuario
-
-TOTAL_HORAS = 120
+from src.utils.storage import horas_por_usuario, TOTAL_HORAS
 
 async def horas_cumplidas(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
