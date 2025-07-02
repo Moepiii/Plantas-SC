@@ -32,34 +32,34 @@ async def consultar_riego(update: Update, context: ContextTypes.DEFAULT_TYPE):
         status_info = CommandValidator.calculate_watering_status(watering_data)
         
         # Preparar mensaje detallado
-        mensaje = f"💧 **Estado de riego de '{validated_plant}'**\n\n"
+        mensaje = f"💧 Estado de riego de '{validated_plant}'\n\n"
         
         # Información básica
-        mensaje += f"📅 **Frecuencia:** cada {status_info['frequency']} día(s)\n"
-        mensaje += f"💧 **Último riego:** {status_info['last_watering']}\n"
-        mensaje += f"📊 **Días desde último riego:** {status_info['days_since_watering']}\n"
+        mensaje += f"📅 Frecuencia: cada {status_info['frequency']} día(s)\n"
+        mensaje += f"💧 Último riego: {status_info['last_watering']}\n"
+        mensaje += f"📊 Días desde último riego: {status_info['days_since_watering']}\n"
         
         # Estado actual con emoji apropiado
         if status_info['status'] == 'ok':
-            mensaje += f"✅ **Estado:** {status_info['message']}\n"
+            mensaje += f"✅ Estado: {status_info['message']}\n"
         elif status_info['status'] == 'due':
-            mensaje += f"⏰ **Estado:** {status_info['message']}\n"
+            mensaje += f"⏰ Estado: {status_info['message']}\n"
         else:  # overdue
-            mensaje += f"🚨 **Estado:** {status_info['message']}\n"
+            mensaje += f"🚨 Estado: {status_info['message']}\n"
         
         # Información adicional según el estado
         if status_info['status'] == 'overdue':
-            mensaje += f"\n💡 **Recomendación:** Riega la planta lo antes posible"
-            mensaje += f"\n🔧 **Comandos útiles:**"
+            mensaje += f"\n💡 Recomendación: Riega la planta lo antes posible"
+            mensaje += f"\n🔧 Comandos útiles:"
             mensaje += f"\n• `/cambiarRiego {validated_plant} YYYY-MM-DD` - Actualizar fecha de último riego"
             mensaje += f"\n• `/cambiarFrecuencia {validated_plant} <días>` - Cambiar frecuencia"
         elif status_info['status'] == 'due':
-            mensaje += f"\n💡 **Recomendación:** ¡Es el momento perfecto para regar!"
+            mensaje += f"\n💡 Recomendación: ¡Es el momento perfecto para regar!"
         else:
-            mensaje += f"\n💡 **Todo está bien:** La planta no necesita riego aún"
+            mensaje += f"\n💡 Todo está bien: La planta no necesita riego aún"
         
         # Historial básico si hay datos
-        mensaje += f"\n\n📈 **Próximos riegos:**"
+        mensaje += f"\n\n📈 Próximos riegos:"
         from datetime import date, timedelta
         next_date = status_info['last_watering'] + timedelta(days=status_info['frequency'])
         for i in range(3):

@@ -4,7 +4,7 @@
   _(Listo)_
 
 - **Que asignes cuál regaste y te diga cuándo la riegas de nuevo**  
-  _(Listo, pendiente probar mejor)_
+  _(Listo)_
 
 - **Que asignes una altura a una planta, luego que puedas poner otra y te diga cuánto creció**  
   _(Listo)_
@@ -16,7 +16,7 @@
   _(Listo)_
 
 - **Registro y conteo de horas pendientes para el cumplimiento del servicio comunitario**
-  _(Listo, pendiente probar mejor)_
+  _(Listo)_
 
 - **Subirla a la nube y olvidarnos de ella**
   _(Pendiente)_

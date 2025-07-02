@@ -1,4 +1,4 @@
-from telegram import Update
+from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import ContextTypes, ConversationHandler, CommandHandler, MessageHandler, filters
 from src.utils.storage import plantas_por_usuario, medidas_por_usuario, guardar_datos
 from src.utils.validators import CommandValidator, ValidationError
@@ -21,12 +21,16 @@ async def iniciar_medicion(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return ConversationHandler.END
     
     plantas = plantas_por_usuario[user_id]
-    plantas_texto = "\n".join([f"{i+1}. {planta}" for i, planta in enumerate(plantas)])
+    # Crear teclado con las plantas
+    teclado = [[planta] for planta in plantas]
+    teclado.append(["❌ Cancelar"])
+    reply_markup = ReplyKeyboardMarkup(teclado, one_time_keyboard=True, resize_keyboard=True)
     
     await update.message.reply_text(
-        f"🌱 **Selecciona la planta a medir:**\n\n{plantas_texto}\n\n"
-        "Escribe el número o el nombre exacto de la planta.\n"
-        "Usa `/cancelar` para cancelar."
+        "🌱 Selecciona la planta a medir:\n\n"
+        "Toca el nombre de la planta o usa `/cancelar` para cancelar.",
+        reply_markup=reply_markup,
+        parse_mode="Markdown"
     )
     
     return SELECCIONAR_PLANTA
@@ -38,27 +42,21 @@ async def seleccionar_planta(update: Update, context: ContextTypes.DEFAULT_TYPE)
     plantas = plantas_por_usuario[user_id]
     seleccion = update.message.text.strip()
     
+    if seleccion == "❌ Cancelar":
+        await cancelar_medicion(update, context)
+        return ConversationHandler.END
+
     planta_seleccionada = None
-    
-    # Intentar por número
-    try:
-        indice = int(seleccion) - 1
-        if 0 <= indice < len(plantas):
-            planta_seleccionada = plantas[indice]
-    except ValueError:
-        pass
-    
+
     # Intentar por nombre exacto
-    if not planta_seleccionada:
-        for planta in plantas:
-            if planta.lower() == seleccion.lower():
-                planta_seleccionada = planta
-                break
+    for planta in plantas:
+        if planta.lower() == seleccion.lower():
+            planta_seleccionada = planta
+            break
     
     if not planta_seleccionada:
         await update.message.reply_text(
-            "❌ Selección inválida. Por favor, escribe el número o nombre exacto de la planta.\n"
-            "Usa `/cancelar` para cancelar."
+            "❌ Selección inválida. Por favor, selecciona una planta del teclado o usa `/cancelar` para cancelar."
         )
         return SELECCIONAR_PLANTA
     
@@ -71,22 +69,25 @@ async def seleccionar_planta(update: Update, context: ContextTypes.DEFAULT_TYPE)
         if medidas:
             ultima_medida = medidas[-1]
             await update.message.reply_text(
-                f"📏 **Planta seleccionada:** {planta_seleccionada}\n\n"
-                f"📊 **Última medida:** {ultima_medida['altura']} cm "
+                f"📏 Planta seleccionada: {planta_seleccionada}\n\n"
+                f"📊 Última medida: {ultima_medida['altura']} cm "
                 f"({ultima_medida['fecha']})\n\n"
-                "Ingresa la nueva medida en centímetros (ejemplo: 25.5):"
+                "Ingresa la nueva medida en centímetros (ejemplo: 25.5):",
+                reply_markup=ReplyKeyboardRemove()
             )
         else:
             await update.message.reply_text(
-                f"📏 **Planta seleccionada:** {planta_seleccionada}\n\n"
+                f"📏 Planta seleccionada: {planta_seleccionada}\n\n"
                 "Esta será la primera medida de esta planta.\n"
-                "Ingresa la medida en centímetros (ejemplo: 25.5):"
+                "Ingresa la medida en centímetros (ejemplo: 25.5):",
+                reply_markup=ReplyKeyboardRemove()
             )
     else:
         await update.message.reply_text(
-            f"📏 **Planta seleccionada:** {planta_seleccionada}\n\n"
+            f"📏 Planta seleccionada: {planta_seleccionada}\n\n"
             "Esta será la primera medida de esta planta.\n"
-            "Ingresa la medida en centímetros (ejemplo: 25.5):"
+            "Ingresa la medida en centímetros (ejemplo: 25.5):",
+            reply_markup=ReplyKeyboardRemove()
         )
     
     return INGRESAR_MEDIDA
@@ -98,6 +99,10 @@ async def procesar_medida(update: Update, context: ContextTypes.DEFAULT_TYPE):
     planta = context.user_data.get('planta_seleccionada')
     medida_texto = update.message.text.strip()
     
+    if medida_texto == "❌ Cancelar":
+        await cancelar_medicion(update, context)
+        return ConversationHandler.END
+
     try:
         # Validar la medida usando CommandValidator
         medida_validada = CommandValidator.validate_measurement(medida_texto)
@@ -133,10 +138,10 @@ async def procesar_medida(update: Update, context: ContextTypes.DEFAULT_TYPE):
         guardar_datos()
         
         # Mensaje de confirmación
-        mensaje = f"✅ **Medida registrada exitosamente**\n\n"
-        mensaje += f"🌱 **Planta:** {planta}\n"
-        mensaje += f"📏 **Altura:** {medida_validada} cm\n"
-        mensaje += f"📅 **Fecha:** {nueva_medida['fecha']}\n"
+        mensaje = f"✅ Medida registrada exitosamente\n\n"
+        mensaje += f"🌱 Planta: {planta}\n"
+        mensaje += f"📏 Altura: {medida_validada} cm\n"
+        mensaje += f"📅 Fecha: {nueva_medida['fecha']}\n"
         
         if mensaje_crecimiento:
             mensaje += f"\n{mensaje_crecimiento}"
@@ -153,7 +158,8 @@ async def procesar_medida(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except ValidationError as e:
         await update.message.reply_text(
             f"❌ {str(e)}\n\n"
-            "Por favor, ingresa una medida válida o usa `/cancelar` para cancelar."
+            "Por favor, ingresa una medida válida o usa `/cancelar` para cancelar.",
+            reply_markup=ReplyKeyboardMarkup([["❌ Cancelar"]], one_time_keyboard=True, resize_keyboard=True)
         )
         return INGRESAR_MEDIDA
 

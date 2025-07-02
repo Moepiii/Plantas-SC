@@ -32,8 +32,8 @@ async def estatura_respuesta(update: Update, context: ContextTypes.DEFAULT_TYPE)
                 "Usa `/medir` para registrar medidas de tus plantas."
             )
             return
-        
-        mensaje = "📏 **Estaturas de tus plantas:**\n\n"
+
+        mensaje = "📏 Estaturas de tus plantas:\n\n"
         plantas_con_medidas = False
         
         for planta in plantas:
@@ -44,13 +44,13 @@ async def estatura_respuesta(update: Update, context: ContextTypes.DEFAULT_TYPE)
                     medidas = medidas_usuario[planta_limpia]
                     ultima_medida = medidas[-1]  # Última medida registrada
                     
-                    mensaje += f"🌱 **{planta_limpia}:**\n"
+                    mensaje += f"🌱 {planta_limpia}:\n"
                     mensaje += f"   📏 Altura actual: {ultima_medida['altura']} cm\n"
                     mensaje += f"   📅 Última medición: {ultima_medida['fecha']}\n"
                     mensaje += f"   📊 Total de medidas: {len(medidas)}\n\n"
         
         if not plantas_con_medidas:
-            mensaje = "📏 **La última estatura registrada:**\n\n"
+            mensaje = "📏 La última estatura registrada:\n\n"
             mensaje += "No tienes medidas registradas para ninguna de tus plantas.\n"
             mensaje += "Usa `/medir` para comenzar a registrar el crecimiento de tus plantas."
         else:

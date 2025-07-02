@@ -40,19 +40,19 @@ async def cambiar_frecuencia(update: Update, context: ContextTypes.DEFAULT_TYPE)
         status_info = CommandValidator.calculate_watering_status(updated_data)
         
         # Preparar mensaje de confirmación
-        mensaje = f"✅ **Frecuencia de riego actualizada**\n\n"
-        mensaje += f"🌱 **Planta:** {validated_plant}\n"
-        mensaje += f"📅 **Frecuencia anterior:** cada {old_frequency} día(s)\n"
-        mensaje += f"📅 **Nueva frecuencia:** cada {new_frequency} día(s)\n\n"
-        mensaje += f"📊 **Estado actual:** {status_info['message']}\n"
-        mensaje += f"💧 **Último riego:** {status_info['last_watering']}"
+        mensaje = f"✅ Frecuencia de riego actualizada\n\n"
+        mensaje += f"🌱 Planta: {validated_plant}\n"
+        mensaje += f"📅 Frecuencia anterior: cada {old_frequency} día(s)\n"
+        mensaje += f"📅 Nueva frecuencia: cada {new_frequency} día(s)\n\n"
+        mensaje += f"📊 Estado actual: {status_info['message']}\n"
+        mensaje += f"💧 Último riego: {status_info['last_watering']}"
         
         # Añadir recomendación si es necesario
         if status_info['status'] == 'overdue':
-            mensaje += f"\n\n💡 **Recomendación:** Considera regar la planta pronto"
+            mensaje += f"\n\n💡 Recomendación: Considera regar la planta pronto"
         elif status_info['status'] == 'due':
-            mensaje += f"\n\n💡 **Recomendación:** ¡Es hora de regar!"
-        
+            mensaje += f"\n\n💡 Recomendación: ¡Es hora de regar!"
+
         await update.message.reply_text(mensaje)
         
         # Log de la acción

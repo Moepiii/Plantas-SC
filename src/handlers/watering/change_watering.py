@@ -54,14 +54,14 @@ async def cambiar_riego(update: Update, context: ContextTypes.DEFAULT_TYPE):
         next_date = datetime.strptime(validated_date, "%Y-%m-%d").date()
         next_watering = next_date.replace(day=next_date.day + frequency)
         
-        mensaje = f"✅ **Fecha de riego actualizada**\n\n"
-        mensaje += f"🌱 **Planta:** {validated_plant}\n"
-        mensaje += f"📅 **Fecha anterior:** {old_date}\n"
-        mensaje += f"📅 **Nueva fecha:** {validated_date}\n"
-        mensaje += f"🔄 **Frecuencia:** cada {frequency} día(s)\n"
-        mensaje += f"📅 **Próximo riego:** {next_watering.strftime('%Y-%m-%d')}\n\n"
-        mensaje += f"**Estado actual:** Configuración actualizada correctamente"
-        
+        mensaje = f"✅ Fecha de riego actualizada\n\n"
+        mensaje += f"🌱 Planta: {validated_plant}\n"
+        mensaje += f"📅 Fecha anterior: {old_date}\n"
+        mensaje += f"📅 Nueva fecha: {validated_date}\n"
+        mensaje += f"🔄 Frecuencia: cada {frequency} día(s)\n"
+        mensaje += f"📅 Próximo riego: {next_watering.strftime('%Y-%m-%d')}\n\n"
+        mensaje += f"Estado actual: Configuración actualizada correctamente"
+
         await update.message.reply_text(mensaje, parse_mode='Markdown')
         
     except ValidationError as e:

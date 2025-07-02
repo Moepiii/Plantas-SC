@@ -16,46 +16,49 @@ ELEGIR_PLANTA, ELEGIR_MEDIDA = range(2)
 async def eliminar_medida_inicio(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Inicia el proceso de eliminación de medidas"""
     user_id = update.effective_user.id
-    
+
     # Validar que el usuario tenga plantas registradas
     plantas = plantas_por_usuario.get(user_id, [])
     plantas_validas = []
-    
-    # Validar cada planta y filtrar las válidas
+
+    # Solo incluir plantas que tengan al menos una medida registrada
     for planta in plantas:
         try:
             planta_validada = CommandValidator.validate_plant_name(planta)
             if planta_validada.strip():
-                plantas_validas.append(planta_validada)
+                # Verifica que la planta tenga medidas
+                medidas = medidas_por_usuario.get(user_id, {}).get(planta_validada, [])
+                if medidas:
+                    plantas_validas.append(planta_validada)
         except ValidationError:
             logger.warning(f"Planta inválida encontrada para usuario {user_id}: {planta}")
             continue
-    
+
     if not plantas_validas:
         await update.message.reply_text(
-            "❌ No tienes plantas registradas válidas.\n"
-            "Usa `/registrar <nombre>` para registrar una planta."
+            "❌ No tienes plantas con medidas registradas.\n"
+            "Usa `/medir` para registrar medidas primero."
         )
         return ConversationHandler.END
-    
+
     # Crear teclado con plantas válidas
     teclado = [[planta] for planta in plantas_validas]
     teclado.append(["❌ Cancelar"])
-    
+
     reply_markup = ReplyKeyboardMarkup(
-        teclado, 
-        one_time_keyboard=True, 
+        teclado,
+        one_time_keyboard=True,
         resize_keyboard=True
     )
-    
+
     await update.message.reply_text(
-        "🌿 **Eliminar medida de planta**\n\n"
+        "🌿 Eliminar medida de planta\n\n"
         "Selecciona la planta de la que quieres eliminar una medida:\n\n"
         "💡 Usa `/cancelar` en cualquier momento para cancelar.",
         reply_markup=reply_markup,
         parse_mode='Markdown'
     )
-    
+
     return ELEGIR_PLANTA
 
 @handle_errors
@@ -134,25 +137,28 @@ async def eliminar_medida_elegir_planta(update: Update, context: ContextTypes.DE
         # Guardar información en el contexto
         context.user_data["planta_seleccionada"] = planta_encontrada
         context.user_data["medidas_validas"] = medidas_validas
-        
-        # Mostrar las medidas con índices
-        medidas_texto = ""
-        for i, medida in enumerate(medidas_validas):
-            medidas_texto += f"{i+1}. {medida['altura']} cm"
+
+        # Crear opciones de teclado con las medidas
+        opciones_teclado = []
+        for medida in medidas_validas:
+            texto_opcion = f"{medida['altura']} cm"
             if medida['fecha'] != 'Sin fecha':
-                medidas_texto += f" ({medida['fecha']})"
-            medidas_texto += "\n"
-        
-        mensaje = f"📏 Medidas de '{planta_encontrada}':\n\n"
-        mensaje += medidas_texto
-        mensaje += "\nEscribe el NÚMERO de la medida que deseas eliminar.\n\n"
-        mensaje += "💡 Usa /cancelar para cancelar."
-        
+                texto_opcion += f" ({medida['fecha']})"
+            opciones_teclado.append([texto_opcion])
+
+        opciones_teclado.append(["❌ Cancelar"])
+
+        mensaje = (
+            f"📏 Medidas de '{planta_encontrada}':\n\n"
+            "Selecciona la medida que deseas eliminar tocando una opción en el teclado.\n\n"
+            "💡 Usa /cancelar para cancelar."
+        )
+
         await update.message.reply_text(
             mensaje,
-            reply_markup=ReplyKeyboardRemove()
+            reply_markup=ReplyKeyboardMarkup(opciones_teclado, one_time_keyboard=True, resize_keyboard=True)
         )
-        
+
         return ELEGIR_MEDIDA
         
     except ValidationError as e:
@@ -183,64 +189,60 @@ async def eliminar_medida_confirmar(update: Update, context: ContextTypes.DEFAUL
         return ConversationHandler.END
     
     try:
-        # Validar el índice ingresado
-        indice_input = update.message.text.strip()
-        
-        # Validar que sea un número
-        try:
-            indice = int(indice_input)
-        except ValueError:
+        medida_input = update.message.text.strip()
+        if medida_input in ["❌ Cancelar", "cancelar"]:
+            return await eliminar_medida_cancelar(update, context)
+
+        # Buscar la medida seleccionada por su texto
+        indice_seleccionado = None
+        for i, medida in enumerate(medidas_validas):
+            texto_opcion = f"{medida['altura']} cm"
+            if medida['fecha'] != 'Sin fecha':
+                texto_opcion += f" ({medida['fecha']})"
+            if medida_input == texto_opcion:
+                indice_seleccionado = i
+                break
+
+        if indice_seleccionado is None:
             await update.message.reply_text(
-                f"❗ Por favor, ingresa un numero valido de la lista.\n\n"
-                f"Opciones validas: 1 a {len(medidas_validas)}"
+                "❗ Por favor, selecciona una opción válida del teclado o usa /cancelar.",
+                reply_markup=ReplyKeyboardMarkup(
+                    [[f"{m['altura']} cm" + (f" ({m['fecha']})" if m['fecha'] != 'Sin fecha' else "")] for m in medidas_validas] + [["❌ Cancelar"]],
+                    one_time_keyboard=True,
+                    resize_keyboard=True
+                )
             )
             return ELEGIR_MEDIDA
-        
-        # Validar que el índice esté en el rango válido
-        if indice < 1 or indice > len(medidas_validas):
-            await update.message.reply_text(
-                f"❗ Numero fuera de rango. Por favor, ingresa un numero entre 1 y {len(medidas_validas)}."
-            )
-            return ELEGIR_MEDIDA
-        
-        # Obtener la medida a eliminar
-        medida_seleccionada = medidas_validas[indice - 1]
+
+        medida_seleccionada = medidas_validas[indice_seleccionado]
         indice_original = medida_seleccionada['indice_original']
-        
+
         # Eliminar la medida del almacenamiento
         medidas_originales = medidas_por_usuario.get(user_id, {}).get(planta, [])
-        
         if indice_original >= len(medidas_originales):
             await update.message.reply_text(
                 "❌ Error: la medida ya no existe. El proceso se cancelará.",
                 reply_markup=ReplyKeyboardRemove()
             )
             return ConversationHandler.END
-        
+
         medida_eliminada = medidas_originales.pop(indice_original)
-        
-        # Guardar los cambios
         guardar_datos()
-        
-        # Limpiar datos de contexto
         context.user_data.clear()
-        
-        # Mensaje de confirmación
+
         altura_eliminada = medida_seleccionada['altura']
         fecha_info = f" del {medida_seleccionada['fecha']}" if medida_seleccionada['fecha'] != 'Sin fecha' else ""
-        
         mensaje = f"✅ Medida eliminada exitosamente\n\n"
         mensaje += f"🌱 Planta: {planta}\n"
         mensaje += f"📏 Medida eliminada: {altura_eliminada} cm{fecha_info}\n\n"
         mensaje += f"📊 Medidas restantes: {len(medidas_originales)}"
-        
+
         await update.message.reply_text(
             mensaje,
             reply_markup=ReplyKeyboardRemove()
         )
-        
         return ConversationHandler.END
-        
+
     except Exception as e:
         logger.error(f"Error al eliminar medida: {e}")
         await update.message.reply_text(

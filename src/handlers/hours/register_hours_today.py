@@ -13,6 +13,10 @@ async def registrar_horas_de_hoy(update: Update, context: ContextTypes.DEFAULT_T
     user_id = update.effective_user.id
     username = update.effective_user.username or "Usuario"
     
+    if not context.args or len(context.args) < 1:
+        await update.message.reply_text("❗ Usa: /registrarHorasDeHoy <horas>")
+        return
+    
     try:
         # Validar horas
         horas = CommandValidator.validate_hours(context.args[0])
@@ -42,13 +46,13 @@ async def registrar_horas_de_hoy(update: Update, context: ContextTypes.DEFAULT_T
             horas_anteriores = registro_existente["horas"]
             registro_existente["horas"] += horas
             await update.message.reply_text(
-                f"✅ **Horas actualizadas para hoy**\n\n"
-                f" **Fecha:** {hoy}\n"
-                f"⏰ **Horas anteriores:** {horas_anteriores}\n"
-                f"➕ **Horas agregadas:** {horas}\n"
-                f" **Total del día:** {registro_existente['horas']}\n\n"
-                f"📊 **Progreso total:** {total_actual + horas}/{TOTAL_HORAS} horas\n"
-                f"🎯 **Restantes:** {max(0, TOTAL_HORAS - (total_actual + horas))} horas",
+                f"✅ Horas actualizadas para hoy\n\n"
+                f" Fecha: {hoy}\n"
+                f"⏰ Horas anteriores: {horas_anteriores}\n"
+                f"➕ Horas agregadas: {horas}\n"
+                f" Total del día: {registro_existente['horas']}\n\n"
+                f"📊 Progreso total: {total_actual + horas}/{TOTAL_HORAS} horas\n"
+                f"🎯 Restantes: {max(0, TOTAL_HORAS - (total_actual + horas))} horas",
                 parse_mode='Markdown'
             )
         else:
@@ -61,11 +65,11 @@ async def registrar_horas_de_hoy(update: Update, context: ContextTypes.DEFAULT_T
             horas_por_usuario[user_id].append(nuevo_registro)
             
             await update.message.reply_text(
-                f"✅ **Horas registradas para hoy**\n\n"
-                f"📅 **Fecha:** {hoy}\n"
-                f"⏰ **Horas:** {horas}\n\n"
-                f"📊 **Progreso total:** {total_actual + horas}/{TOTAL_HORAS} horas\n"
-                f"🎯 **Restantes:** {max(0, TOTAL_HORAS - (total_actual + horas))} horas",
+                f"✅ Horas registradas para hoy\n\n"
+                f"📅 Fecha: {hoy}\n"
+                f"⏰ Horas: {horas}\n\n"
+                f"📊 Progreso total: {total_actual + horas}/{TOTAL_HORAS} horas\n"
+                f"🎯 Restantes: {max(0, TOTAL_HORAS - (total_actual + horas))} horas",
                 parse_mode='Markdown'
             )
         
@@ -77,6 +81,9 @@ async def registrar_horas_de_hoy(update: Update, context: ContextTypes.DEFAULT_T
         
     except ValidationError as e:
         await update.message.reply_text(f"❗ {str(e)}")
+        return
+    except ValueError:
+        await update.message.reply_text("❗ Ingresa una cantidad válida de horas.")
         return
 
 # Handler para el comando

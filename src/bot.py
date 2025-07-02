@@ -73,6 +73,9 @@ def run_bot():
         
         logger.info(f"Registrados {len(handlers)} handlers")
         
+        # Agregar job de recordatorio de riego (cada minuto)
+        app.job_queue.run_repeating(revisar_riegos, interval=60, first=10)
+        
         logger.info("Bot iniciado correctamente")
         print("🤖 Bot Plantas-SC está funcionando...")
         print("Presiona Ctrl+C para detener")

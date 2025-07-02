@@ -96,7 +96,7 @@ class BotMetrics:
         recent_errors = [e for e in self.metrics["errors"] 
                         if datetime.fromisoformat(e["timestamp"]).date() == date.today()]
         
-        report += f"\n❌ **Errores hoy:** {len(recent_errors)}"
+        report += f"\n❌ Errores hoy: {len(recent_errors)}"
         
         return report
 

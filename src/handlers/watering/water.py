@@ -49,18 +49,18 @@ async def regar(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Preparar mensaje
         if existing_watering:
             old_frequency = existing_watering.get("frecuencia", "desconocida")
-            mensaje = f"🔄 **Configuración de riego actualizada**\n\n"
-            mensaje += f"🌱 **Planta:** {validated_plant}\n"
-            mensaje += f"📅 **Frecuencia anterior:** cada {old_frequency} día(s)\n"
-            mensaje += f"📅 **Nueva frecuencia:** cada {frequency} día(s)\n"
-            mensaje += f"💧 **Último riego registrado:** hoy ({today})\n"
-            mensaje += f"📅 **Próximo riego:** {next_watering.strftime('%Y-%m-%d')}"
+            mensaje = f"🔄 Configuración de riego actualizada\n\n"
+            mensaje += f"🌱 Planta: {validated_plant}\n"
+            mensaje += f"📅 Frecuencia anterior: cada {old_frequency} día(s)\n"
+            mensaje += f"📅 Nueva frecuencia: cada {frequency} día(s)\n"
+            mensaje += f"💧 Último riego registrado: hoy ({today})\n"
+            mensaje += f"📅 Próximo riego: {next_watering.strftime('%Y-%m-%d')}"
         else:
-            mensaje = f"💧 **Riego configurado exitosamente**\n\n"
-            mensaje += f"🌱 **Planta:** {validated_plant}\n"
-            mensaje += f"📅 **Frecuencia:** cada {frequency} día(s)\n"
-            mensaje += f"💧 **Último riego registrado:** hoy ({today})\n"
-            mensaje += f"📅 **Próximo riego:** {next_watering.strftime('%Y-%m-%d')}"
+            mensaje = f"💧 Riego configurado exitosamente\n\n"
+            mensaje += f"🌱 Planta: {validated_plant}\n"
+            mensaje += f"📅 Frecuencia: cada {frequency} día(s)\n"
+            mensaje += f"💧 Último riego registrado: hoy ({today})\n"
+            mensaje += f"📅 Próximo riego: {next_watering.strftime('%Y-%m-%d')}"
         
         await update.message.reply_text(mensaje, parse_mode='Markdown')
         
