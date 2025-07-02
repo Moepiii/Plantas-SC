@@ -1,5 +1,5 @@
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import ContextTypes, ConversationHandler
+from telegram.ext import ContextTypes, ConversationHandler, CommandHandler
 from datetime import datetime
 from src.utils.validators import CommandValidator, ValidationError
 from src.utils.storage import plantas_por_usuario, medidas_por_usuario, guardar_datos
@@ -69,3 +69,5 @@ async def medir_cancelar(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
     await update.message.reply_text("❌ Acción cancelada.", reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
+
+estatura_handler = CommandHandler("estatura", estatura_respuesta)
